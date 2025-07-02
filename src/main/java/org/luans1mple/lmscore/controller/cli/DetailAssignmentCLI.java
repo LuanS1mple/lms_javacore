@@ -108,7 +108,12 @@ public class DetailAssignmentCLI implements Runnable {
                     }
                     break;
                 } else if (choice == 2) {
-                    assignmentResultService.submit(assignment);
+                    if(assignmentResultService.submit(assignment)){
+                        System.out.println("Nộp bài thành công");
+                    }
+                    else{
+                        System.out.println("Nộp bài không thành công");
+                    }
                     break;
                 } else {
                     System.out.println("Lựa chọn không hợp lệ. Vui lòng thử lại.");

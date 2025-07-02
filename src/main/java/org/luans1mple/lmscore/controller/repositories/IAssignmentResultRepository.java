@@ -9,4 +9,5 @@ public interface IAssignmentResultRepository {
     public void mark(int score,String comment, AssignmentResult assignmentResult);
     public void add(AssignmentResult assignmentResult);
     public int size();
+    public void update(AssignmentResult assignmentResult);
 }

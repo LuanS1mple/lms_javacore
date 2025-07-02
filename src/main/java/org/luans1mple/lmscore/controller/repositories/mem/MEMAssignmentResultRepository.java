@@ -177,4 +177,20 @@ public class MEMAssignmentResultRepository implements IAssignmentResultRepositor
         return  assignmentResults.size();
     }
 
+    @Override
+    public void update(AssignmentResult assignmentResult) {
+        for (int i = 0; i < assignmentResults.size(); i++) {
+            AssignmentResult current = assignmentResults.get(i);
+            if (current.getUser().getId() == assignmentResult.getUser().getId() &&
+                    current.getAssignment().getId() == assignmentResult.getAssignment().getId()) {
+                current.setDoneAt(assignmentResult.getDoneAt());
+                current.setSubmissionUrl(assignmentResult.getSubmissionUrl());
+                current.setMark(assignmentResult.getMark());
+                current.setComment(assignmentResult.getComment());
+                current.setStatus(assignmentResult.getStatus());
+                return;
+            }
+        }
+    }
+
 }

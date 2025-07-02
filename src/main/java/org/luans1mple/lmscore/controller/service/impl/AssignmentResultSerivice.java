@@ -110,7 +110,7 @@ public class AssignmentResultSerivice implements IAssignmentResultService {
     }
 
     @Override
-    public void submit( Assignment assignment) {
+    public boolean submit( Assignment assignment) {
         AssignmentResult assignmentResult = new AssignmentResult();
         int userId = SessionCLI.getInstance().getUserId();
         assignmentResult.setUser(userRepository.getById(userId));
@@ -120,7 +120,16 @@ public class AssignmentResultSerivice implements IAssignmentResultService {
         assignmentResult.setMark(AssignmentResultSerivice.getUnMarkedNumber());
         assignmentResult.setComment(null);
         assignmentResult.setStatus(isLateSubmit(assignment.getEndAt()));
+
+        if(this.isSubmitBefore(assignmentResult) && this.isMarkedBefore(assignmentResult)){
+            return false;
+        }
+        if(this.isSubmitBefore(assignmentResult) && !this.isMarkedBefore(assignmentResult)){
+            this.replaceSubmit(assignmentResult);
+            return true;
+        }
         assignmentResultRepository.add(assignmentResult);
+        return  true;
     }
 
     @Override
@@ -168,5 +177,22 @@ public class AssignmentResultSerivice implements IAssignmentResultService {
         } catch (NoSuchElementException e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean isSubmitBefore(AssignmentResult assignmentResult) {
+        AssignmentResult result =this.getResult(assignmentResult.getUser().getId(),assignmentResult.getAssignment().getId());
+        return result!=null;
+    }
+
+    @Override
+    public boolean isMarkedBefore(AssignmentResult assignmentResult) {
+        AssignmentResult result =this.getResult(assignmentResult.getUser().getId(),assignmentResult.getAssignment().getId());
+        return (result!=null && result.getMark()!= AssignmentResultSerivice.getUnMarkedNumber());
+    }
+
+    @Override
+    public void replaceSubmit(AssignmentResult assignmentResult) {
+        assignmentResultRepository.update(assignmentResult);
     }
 }

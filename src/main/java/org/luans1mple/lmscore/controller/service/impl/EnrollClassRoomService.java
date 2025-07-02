@@ -115,7 +115,7 @@ public class EnrollClassRoomService implements IEnrollClassRoomSerivce {
     @Override
     public boolean join(String inviteCode,int userId) {
         ClassRoom classRoom = classRoomRepository.getByCode(inviteCode);
-        if(isEnrolled(classRoom.getId(),userId)){
+        if(classRoom!=null && isEnrolled(classRoom.getId(),userId)){
             return false;
         }
         if(classRoom !=null){

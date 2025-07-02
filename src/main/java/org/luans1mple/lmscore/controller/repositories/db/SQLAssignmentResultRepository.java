@@ -10,6 +10,7 @@ import org.luans1mple.lmscore.controller.repositories.IClassRoomRepository;
 import org.luans1mple.lmscore.controller.repositories.IUserRepository;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +119,29 @@ public class SQLAssignmentResultRepository implements IAssignmentResultRepositor
 
         return 0;
     }
+
+    @Override
+    public void update(AssignmentResult assignmentResult) {
+        String sql = "update assignmentresult set doneat = ?, submissionurl = ?, mark = ?, comment = ?, status = ? where userid = ? and assignmentid = ?";
+
+        try (Connection conn = DbFacade.getConnection()){
+             PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setString(2, assignmentResult.getSubmissionUrl());
+            stmt.setInt(3, assignmentResult.getMark());
+            stmt.setString(4, assignmentResult.getComment());
+            stmt.setInt(5, assignmentResult.getStatus());
+
+            stmt.setInt(6, assignmentResult.getUser().getId());
+            stmt.setInt(7, assignmentResult.getAssignment().getId());
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Assignment getAssignmentById(int id) {
         String sql = "select * from Assignment where id = ?";
 
