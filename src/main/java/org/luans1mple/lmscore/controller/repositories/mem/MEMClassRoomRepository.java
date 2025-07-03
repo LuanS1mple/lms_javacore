@@ -47,8 +47,9 @@ public class MEMClassRoomRepository implements IClassRoomRepository {
     }
 
     @Override
-    public void add(ClassRoom c) {
+    public ClassRoom add(ClassRoom c) {
         classes.add(c);
+        return c;
     }
 
     @Override
@@ -62,6 +63,17 @@ public class MEMClassRoomRepository implements IClassRoomRepository {
             return classes.stream()
                     .filter(classRoom -> classRoom.getInviteCode().equals(inviteCode))
                     .findFirst().get();
+        }
+        catch (NoSuchElementException e){
+            return null;
+        }
+    }
+
+    @Override
+    public ClassRoom getById(int classId) {
+        try{
+            return classes.stream()
+                    .filter(classRoom -> classRoom.getId()==classId).findFirst().get();
         }
         catch (NoSuchElementException e){
             return null;

@@ -109,4 +109,10 @@ public class AssignmentService implements IAssignmentService {
     public void add(Assignment assignment) {
         assignmentRepository.add(assignment);
     }
+
+    @Override
+    public List<Assignment> search(String pattern, int classId) {
+        return assignmentRepository.getAssignmentByClass(classId).stream()
+                .filter(assignment -> assignment.getTittle().toLowerCase().contains(pattern.toLowerCase())).toList();
+    }
 }

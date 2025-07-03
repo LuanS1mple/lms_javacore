@@ -56,38 +56,91 @@ public class StudentClassManagerCLI implements Runnable{
     public void homeworkManage(){
         System.out.println("Thông tin các bài tập");
         System.out.println("Các bài tập: ");
-        List<Assignment> assignments = assignmentService.getAssignment(currentClass.getId());
+        List<Assignment> assignmentOngoing = assignmentService.getGoingAssignment(currentClass.getId());
+        List<Assignment> assignmentExpired = assignmentService.getExpireAssignment(currentClass.getId());
 
-        if (assignments.isEmpty()) {
+        if (assignmentOngoing.isEmpty() && assignmentExpired.isEmpty()) {
             System.out.println("Không có bài tập");
             return;
         }
-
-        for (int i = 0; i < assignments.size(); i++) {
-            System.out.println((i + 1) + ". " + assignments.get(i).getTittle() + " - Hết hạn vào: " + assignments.get(i).getEndAt());
+        System.out.println("Các bài tập đang có: ");
+        for (int i = 0; i < assignmentOngoing.size(); i++) {
+            System.out.println((i + 1) + ". " + assignmentOngoing.get(i).getTittle() + " - Hết hạn vào: " + assignmentOngoing.get(i).getEndAt());
+        }
+        System.out.println("Các bài tập hết hạn: ");
+        for (int i = 0; i < assignmentExpired.size(); i++) {
+            System.out.println((i + 1) + ". " + assignmentExpired.get(i).getTittle() + " - Hết hạn vào: " + assignmentExpired.get(i).getEndAt());
         }
         System.out.println("0. Thoát");
+        System.out.println("F. Tìm kiếm");
 
-        int select;
+        int select =-1;
         while (true) {
             Scanner sc = new Scanner(System.in);
             System.out.print("Chọn một số (0 để thoát): ");
+            String raw =sc.nextLine();
             try {
-                select = Integer.parseInt(sc.nextLine());
-                if (select >= 0 && select <= assignments.size() + 1) {
+                select = Integer.parseInt(raw);
+                if (select >= 0 && select <= assignmentOngoing.size() + assignmentExpired.size()) {
                     break;
                 } else {
-                    System.out.println("Vui lòng chọn từ 0 đến " + (assignments.size() + 1));
+                    System.out.println("Vui lòng chọn từ 0 đến " + (assignmentOngoing.size() + assignmentExpired.size() + 1));
                 }
             } catch (NumberFormatException e) {
+                if(raw.equalsIgnoreCase("f")){
+                    searchingHomeWork();
+                    break;
+                }
                 System.out.println("Vui lòng nhập một số hợp lệ.");
             }
         }
 
         if (select == 0) {
             System.out.println("Đã quay lại.");
-        } else if (select >= 1 && select <= assignments.size()) {
-            Assignment selectedAssignment = assignments.get(select - 1);
+        } else if (select >= 1 && select <= assignmentOngoing.size()) {
+            Assignment selectedAssignment = assignmentOngoing.get(select - 1);
+            DetailAssignmentCLI detailAssignmentCLI = new DetailAssignmentCLI(selectedAssignment);
+            detailAssignmentCLI.run();
+        } else if(select > assignmentOngoing.size() && select <= assignmentOngoing.size() + assignmentExpired.size()){
+            Assignment selectedAssignment = assignmentExpired.get(select - assignmentOngoing.size()-1);
+            DetailAssignmentCLI detailAssignmentCLI = new DetailAssignmentCLI(selectedAssignment);
+            detailAssignmentCLI.run();
+        }
+    }
+    public void searchingHomeWork(){
+        System.out.println("Nhập từ khóa tìm kiếm: ");
+        Scanner sc = new Scanner(System.in);
+        String pattern = sc.nextLine().trim();
+        List<Assignment> rs  = assignmentService.search(pattern,currentClass.getId());
+        if(rs.isEmpty()){
+            System.out.println("Không tìm thấy kết quả");
+            return;
+        }
+        System.out.println("Kết quả tìm kiếm: ");
+        for (int i = 0; i < rs.size(); i++) {
+            System.out.println((i+1)+". "+rs.get(i).toString());
+        }
+        System.out.println("0. Thoát");
+
+        int select =-1;
+        while (true) {
+            System.out.print("Lựa chọn: ");
+            String raw =sc.nextLine();
+            try {
+                select = Integer.parseInt(raw);
+                if (select >= 0 && select <= rs.size()) {
+                    break;
+                } else {
+                    System.out.println("Vui lòng chọn từ 0 đến " + (rs.size()));
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Vui lòng nhập một số hợp lệ.");
+            }
+        }
+        if (select == 0) {
+            System.out.println("Đã quay lại.");
+        } else if (select >= 1 && select <= rs.size()) {
+            Assignment selectedAssignment = rs.get(select - 1);
             DetailAssignmentCLI detailAssignmentCLI = new DetailAssignmentCLI(selectedAssignment);
             detailAssignmentCLI.run();
         }

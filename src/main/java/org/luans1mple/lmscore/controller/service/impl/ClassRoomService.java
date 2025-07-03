@@ -29,13 +29,13 @@ public class ClassRoomService implements IClassRoomService {
 
     @Override
     public void add(ClassRoom c) {
+        ClassRoom classRoom =classRoomRepository.add(c);
         Date now = new Date(System.currentTimeMillis());
         EnrollClassRoom enrollClassRoom = new EnrollClassRoom();
         enrollClassRoom.setUser(c.getCreateBy());
-        enrollClassRoom.setClassRoom(c);
+        enrollClassRoom.setClassRoom(classRoom);
         enrollClassRoom.setEnrollAt(now);
         enrollClassRoom.setRole(EnrollClassRoomService.getTEACHER_ROLEID());
-        classRoomRepository.add(c);
         enrollClassRoomRepository.add(enrollClassRoom);
     }
 

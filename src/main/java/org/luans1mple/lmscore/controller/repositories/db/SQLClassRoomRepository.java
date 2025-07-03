@@ -47,11 +47,11 @@ public class SQLClassRoomRepository implements IClassRoomRepository {
     }
 
     @Override
-    public void add(ClassRoom c) {
+    public ClassRoom add(ClassRoom c) {
         String sql = "insert into ClassRoom(className, createAt, createBy, inviteCode) values (?, ?, ?, ?)";
 
         try (Connection connection = DbFacade.getConnection()){
-            PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, c.getclassName());
             ps.setTimestamp(2, new Timestamp(c.getCreateAt().getTime()));
@@ -59,9 +59,14 @@ public class SQLClassRoomRepository implements IClassRoomRepository {
             ps.setString(4, c.getInviteCode());
 
             ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if(rs.next()){
+                return getById(rs.getInt(1));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 
     @Override
@@ -77,6 +82,36 @@ public class SQLClassRoomRepository implements IClassRoomRepository {
             PreparedStatement ps = connection.prepareStatement(sql);
 
             ps.setString(1, inviteCode);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ClassRoom classRoom = new ClassRoom();
+                classRoom.setId(rs.getInt("id"));
+                classRoom.setclassName(rs.getString("className"));
+                classRoom.setCreateAt(rs.getTimestamp("createAt"));
+                classRoom.setInviteCode(rs.getString("inviteCode"));
+
+                int creatorId = rs.getInt("createBy");
+                classRoom.setCreateBy(userRepository.getById(creatorId));
+
+                return classRoom;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+
+    @Override
+    public ClassRoom getById(int classId) {
+        String sql = "select * from ClassRoom where id = ?";
+
+        try (Connection connection = DbFacade.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, classId);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {

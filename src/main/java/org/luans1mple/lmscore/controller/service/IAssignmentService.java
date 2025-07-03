@@ -13,4 +13,5 @@ public interface IAssignmentService {
     public int size();
     public String uploadMeterial();
     public void add(Assignment assignment);
+    public List<Assignment> search(String pattern, int classId);
 }

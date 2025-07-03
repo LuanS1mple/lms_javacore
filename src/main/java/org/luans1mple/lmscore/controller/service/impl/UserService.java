@@ -18,8 +18,9 @@ public class UserService implements IUserService {
     }
     @Override
     public boolean isCorrectAccount(String email, String password) {
-        if(getByEmail(email)==null) return false;
-        return password.equals(getByEmail(email).getPassword());
+        User user = getByEmail(email);
+        if(user==null) return false;
+        return password.equals(user.getPassword()) && user.getStatus()==1;
     }
 
     @Override
@@ -46,13 +47,15 @@ public class UserService implements IUserService {
     @Override
     public List<User> orderByName() {
         return userRepository.getAll().stream()
-                .sorted(Comparator.comparing(User::getFullName)).toList();
+                .sorted(Comparator.comparing(User::getFullName))
+                .filter(user -> user.getStatus()==1).toList();
     }
 
     @Override
     public List<User> orderByCreateDate() {
         return userRepository.getAll().stream()
-                .sorted(Comparator.comparing(User::getCreatedAt)).toList();
+                .sorted(Comparator.comparing(User::getCreatedAt))
+                .filter(user -> user.getStatus()==1).toList();
     }
 
     @Override

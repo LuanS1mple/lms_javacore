@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface IClassRoomRepository {
     public List<ClassRoom> getAll();
-    public void add(ClassRoom c);
+    public ClassRoom add(ClassRoom c);
     public List<ClassRoom> getByUserId(int userId);
     public ClassRoom getByCode(String inviteCode);
+    public ClassRoom getById(int classId);
 }
